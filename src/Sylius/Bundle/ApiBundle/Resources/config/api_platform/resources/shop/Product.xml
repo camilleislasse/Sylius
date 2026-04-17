@@ -34,6 +34,7 @@
                     <filter>sylius_api.price_order_filter.shop.product</filter>
                     <filter>sylius_api.name_with_locale_order_filter.shop.translatable</filter>
                     <filter>sylius_api.taxon_search_filter.shop.product</filter>
+                    <filter>sylius_api.search_filter.shop.products_by_association</filter>
                 </filters>
                 <order>
                     <values>
@@ -61,6 +62,9 @@
                 controller="sylius_api.controller.get_product_by_slug"
                 read="false"
             >
+                <uriVariables>
+                    <uriVariable parameterName="slug" fromClass="%sylius.model.product.class%" />
+                </uriVariables>
                 <normalizationContext>
                     <values>
                         <value name="groups">

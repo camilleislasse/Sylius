@@ -15,7 +15,9 @@ namespace Sylius\Tests\Functional;
 
 use Fidry\AliceDataFixtures\LoaderInterface;
 use Fidry\AliceDataFixtures\Persistence\PurgeMode;
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Bundle\PromotionBundle\Provider\EligibleCatalogPromotionsProvider;
+use Sylius\Bundle\PromotionBundle\Provider\EligibleCatalogPromotionsProviderInterface;
 use Sylius\Component\Core\Model\CatalogPromotionInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -35,11 +37,11 @@ final class EligibleCatalogPromotionsProcessorTest extends WebTestCase
         $fixtureLoader->load([__DIR__ . '/../DataFixtures/ORM/resources/scheduled_catalog_promotions.yml'], [], [], PurgeMode::createDeleteMode());
     }
 
-    /** @test */
+    #[Test]
     public function it_provides_catalog_promotions_with_precision_to_seconds(): void
     {
         /** @var EligibleCatalogPromotionsProvider $eligibleCatalogPromotionsProvider */
-        $eligibleCatalogPromotionsProvider = self::$kernel->getContainer()->get('Sylius\Bundle\PromotionBundle\Provider\EligibleCatalogPromotionsProviderInterface');
+        $eligibleCatalogPromotionsProvider = self::$kernel->getContainer()->get(EligibleCatalogPromotionsProviderInterface::class);
         $dateFilePath = self::$kernel->getContainer()->getParameter('sylius.behat.clock.date_file');
 
         file_put_contents($dateFilePath, '2021-10-12 00:00:02');
@@ -64,11 +66,11 @@ final class EligibleCatalogPromotionsProcessorTest extends WebTestCase
         unlink($dateFilePath);
     }
 
-    /** @test */
+    #[Test]
     public function it_provides_catalog_promotions_with_precision_to_seconds_for_end_date(): void
     {
         /** @var EligibleCatalogPromotionsProvider $eligibleCatalogPromotionsProvider */
-        $eligibleCatalogPromotionsProvider = self::$kernel->getContainer()->get('Sylius\Bundle\PromotionBundle\Provider\EligibleCatalogPromotionsProviderInterface');
+        $eligibleCatalogPromotionsProvider = self::$kernel->getContainer()->get(EligibleCatalogPromotionsProviderInterface::class);
         $dateFilePath = self::$kernel->getContainer()->getParameter('sylius.behat.clock.date_file');
 
         file_put_contents($dateFilePath, '2021-10-12 23:59:58');

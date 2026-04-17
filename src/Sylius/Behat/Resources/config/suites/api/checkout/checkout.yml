@@ -6,6 +6,7 @@ default:
         api_checkout:
             contexts:
                 - sylius.behat.context.hook.doctrine_orm
+                - sylius.behat.context.hook.guest_cart
 
                 - sylius.behat.context.transform.address
                 - sylius.behat.context.transform.cart
@@ -35,6 +36,8 @@ default:
                 - sylius.behat.context.setup.channel
                 - sylius.behat.context.setup.checkout
                 - sylius.behat.context.setup.checkout.address
+                - sylius.behat.context.setup.checkout.payment
+                - sylius.behat.context.setup.checkout.shipping
                 - sylius.behat.context.setup.customer
                 - sylius.behat.context.setup.geographical
                 - sylius.behat.context.setup.geographical
@@ -51,11 +54,14 @@ default:
                 - sylius.behat.context.setup.zone
                 - Sylius\Behat\Context\Setup\CatalogPromotionContext
 
+                - sylius.behat.context.api.debug
                 - sylius.behat.context.api.email
                 - sylius.behat.context.api.shop.address
                 - sylius.behat.context.api.shop.cart
                 - sylius.behat.context.api.shop.channel
                 - sylius.behat.context.api.shop.checkout
+                - sylius.behat.context.api.shop.checkout.complete
+                - sylius.behat.context.api.shop.checkout.shipping
                 - sylius.behat.context.api.shop.order
 
             filters:

@@ -16,6 +16,8 @@ namespace Sylius\Tests\Functional\Encryption;
 use Doctrine\ORM\EntityManagerInterface;
 use Fidry\AliceDataFixtures\LoaderInterface;
 use Fidry\AliceDataFixtures\Persistence\PurgeMode;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Component\Core\Model\Order;
 use Sylius\Component\Core\Model\Payment;
 use Sylius\Component\Payment\Factory\PaymentRequestFactoryInterface;
@@ -47,11 +49,8 @@ final class PaymentRequestEncryptionTest extends KernelTestCase
         ]);
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider getPayload
-     */
+    #[DataProvider('getPayload')]
+    #[Test]
     public function it_covers_encryption_and_decryption_when_saving_and_loading_the_payload(mixed $payload): void
     {
         $paymentRequest = $this->createTestPaymentRequest();
@@ -75,7 +74,7 @@ final class PaymentRequestEncryptionTest extends KernelTestCase
         self::assertNotEquals($payload, $payloadFromDatabase);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_encrypt_and_decrypt_null_payloads(): void
     {
         $paymentRequest = $this->createTestPaymentRequest();
@@ -99,11 +98,8 @@ final class PaymentRequestEncryptionTest extends KernelTestCase
         self::assertNull($payloadFromDatabase);
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider getResponseData
-     */
+    #[DataProvider('getResponseData')]
+    #[Test]
     public function it_covers_encryption_and_decryption_when_saving_and_loading_the_response_data(
         array $responseData,
     ): void {
@@ -116,14 +112,14 @@ final class PaymentRequestEncryptionTest extends KernelTestCase
 
         $this->entityManager->clear();
 
-        $responseDataFromDatabase = json_decode($this->getDatabaseColumnDataForHash('response_data'), true);
+        $responseDataFromDatabase = json_decode((string) $this->getDatabaseColumnDataForHash('response_data'), true);
         self::assertNotEquals($paymentRequest->getResponseData(), $responseDataFromDatabase);
 
         $paymentRequestFromRepository = $this->paymentRequestRepository->find($hash);
         self::assertEquals($paymentRequest->getResponseData(), $paymentRequestFromRepository->getResponseData());
         self::assertEquals($responseData, $paymentRequest->getResponseData());
 
-        $responseDataFromDatabase = json_decode($this->getDatabaseColumnDataForHash('response_data'), true);
+        $responseDataFromDatabase = json_decode((string) $this->getDatabaseColumnDataForHash('response_data'), true);
         self::assertNotEquals($paymentRequest->getResponseData(), $responseDataFromDatabase);
         self::assertNotEquals($responseData, $responseDataFromDatabase);
     }

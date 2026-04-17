@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace Sylius\Tests\Api\Admin;
 
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Tests\Api\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 final class AddressesTest extends JsonApiTestCase
 {
-    /** @test */
+    #[Test]
     public function it_gets_address(): void
     {
         $fixtures = $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'address_with_customer.yaml']);
@@ -40,7 +41,7 @@ final class AddressesTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_address(): void
     {
         $fixtures = $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'address_with_customer.yaml']);
@@ -72,7 +73,7 @@ final class AddressesTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_address_with_invalid_data(): void
     {
         $fixtures = $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'address_with_customer.yaml']);
@@ -97,8 +98,7 @@ final class AddressesTest extends JsonApiTestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-        $this->assertJsonResponseViolations($this->client->getResponse(), [
+        $this->assertResponseContainsViolations([
             [
                 'propertyPath' => 'countryCode',
                 'message' => 'This value is not a valid country.',
@@ -114,7 +114,7 @@ final class AddressesTest extends JsonApiTestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_address_log_entries(): void
     {
         $fixtures = $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'address_with_customer.yaml']);

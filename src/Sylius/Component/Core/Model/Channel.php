@@ -76,12 +76,8 @@ class Channel extends BaseChannel implements ChannelInterface
     public function __construct()
     {
         parent::__construct();
-
-        /** @var ArrayCollection<array-key, CurrencyInterface> $this->currencies */
         $this->currencies = new ArrayCollection();
-        /** @var ArrayCollection<array-key, LocaleInterface> $this->locales */
         $this->locales = new ArrayCollection();
-        /** @var ArrayCollection<array-key, CountryInterface> $this->countries */
         $this->countries = new ArrayCollection();
     }
 
@@ -295,5 +291,10 @@ class Channel extends BaseChannel implements ChannelInterface
     public function setChannelPriceHistoryConfig(ChannelPriceHistoryConfigInterface $channelPriceHistoryConfig): void
     {
         $this->channelPriceHistoryConfig = $channelPriceHistoryConfig;
+    }
+
+    public function getEnabledCountries(): Collection
+    {
+        return $this->getCountries()->filter(fn (CountryInterface $country): bool => true === $country->isEnabled());
     }
 }

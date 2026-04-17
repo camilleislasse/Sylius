@@ -33,7 +33,10 @@ class ProductVariantRepository extends BaseProductVariantRepository implements P
     public function createInventoryListQueryBuilder(string $locale): QueryBuilder
     {
         return $this->createQueryBuilder('o')
+            ->addSelect('translation', 'product', 'productTranslation')
             ->leftJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->innerJoin('o.product', 'product')
+            ->leftJoin('product.translations', 'productTranslation', 'WITH', 'productTranslation.locale = :locale')
             ->andWhere('o.tracked = :tracked')
             ->setParameter('locale', $locale)
             ->setParameter('tracked', true)
@@ -72,6 +75,19 @@ class ProductVariantRepository extends BaseProductVariantRepository implements P
             ->select('COUNT(o.id)')
             ->innerJoin('o.optionValues', 'optionValue', Join::WITH, 'optionValue.id = :id')
             ->setParameter('id', $id)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    public function countTrackedOutOfStock(): int
+    {
+        return $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.tracked = :tracked')
+            ->andWhere('o.onHand = :onHand')
+            ->setParameter('tracked', true)
+            ->setParameter('onHand', 0)
             ->getQuery()
             ->getSingleScalarResult()
         ;

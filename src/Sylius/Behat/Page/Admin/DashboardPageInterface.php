@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin;
 
-use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
+use Sylius\Behat\Page\SyliusPageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 
-interface DashboardPageInterface extends SymfonyPageInterface
+interface DashboardPageInterface extends SyliusPageInterface
 {
     public function getTotalSales(): string;
 
@@ -45,4 +45,14 @@ interface DashboardPageInterface extends SymfonyPageInterface
     public function chooseNextPeriod(): void;
 
     public function searchForProductViaNavbar(ProductInterface $productName): void;
+
+    public function getNumberOfOrdersToProcess(): int;
+
+    public function getNumberOfPendingPayments(): int;
+
+    public function getNumberOfProductReviewsToApprove(): int;
+
+    public function getNumberOfProductVariantsOutOfStock(): int;
+
+    public function getNumberOfShipmentsToShip(): int;
 }

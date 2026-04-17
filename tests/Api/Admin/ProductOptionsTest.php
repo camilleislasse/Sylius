@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Tests\Api\Admin;
 
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Sylius\Tests\Api\JsonApiTestCase;
@@ -27,7 +28,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->setUpAdminContext();
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_a_product_option(): void
     {
         $this->setUpDefaultGetHeaders();
@@ -46,7 +47,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/product_option/get_product_option');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_product_options(): void
     {
         $this->setUpDefaultGetHeaders();
@@ -62,7 +63,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/product_option/get_product_options');
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_a_product_option(): void
     {
         $this->setUpDefaultPostHeaders();
@@ -98,7 +99,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseCreated('admin/product_option/post_product_option_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_allow_to_create_a_product_option_with_invalid_data(): void
     {
         $this->setUpDefaultPostHeaders();
@@ -117,30 +118,27 @@ final class ProductOptionsTest extends JsonApiTestCase
             ],
         );
 
-        $this->assertResponseViolations(
-            $this->client->getResponse(),
+        $this->assertResponseContainsViolations([
             [
-                [
-                    'propertyPath' => 'code',
-                    'message' => 'Please enter option code.',
-                ],
-                [
-                    'propertyPath' => 'values[0].code',
-                    'message' => 'Please enter option value code.',
-                ],
-                [
-                    'propertyPath' => 'values[0].translations[en_US].value',
-                    'message' => 'Please enter option value.',
-                ],
-                [
-                    'propertyPath' => 'translations[en_US].name',
-                    'message' => 'Please enter option name.',
-                ],
+                'propertyPath' => 'code',
+                'message' => 'Please enter option code.',
             ],
-        );
+            [
+                'propertyPath' => 'values[0].code',
+                'message' => 'Please enter option value code.',
+            ],
+            [
+                'propertyPath' => 'values[0].translations[en_US].value',
+                'message' => 'Please enter option value.',
+            ],
+            [
+                'propertyPath' => 'translations[en_US].name',
+                'message' => 'Please enter option name.',
+            ],
+        ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_a_product_option(): void
     {
         $this->setUpDefaultPutHeaders();
@@ -174,7 +172,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/product_option/put_product_option_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_a_product_option_with_duplicate_locale_translation(): void
     {
         $this->setUpDefaultPutHeaders();
@@ -204,7 +202,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_a_product_option_value_with_duplicate_locale_translation(): void
     {
         $this->setUpDefaultPutHeaders();
@@ -241,7 +239,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseUnprocessableEntity('admin/product_option/put_product_option_value_with_duplicate_locale_translation');
     }
 
-    /** @test */
+    #[Test]
     public function it_deletes_a_product_option(): void
     {
         $this->setUpDefaultDeleteHeaders();
@@ -260,7 +258,7 @@ final class ProductOptionsTest extends JsonApiTestCase
         $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NO_CONTENT);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_values_of_product_option(): void
     {
         $this->setUpDefaultGetHeaders();

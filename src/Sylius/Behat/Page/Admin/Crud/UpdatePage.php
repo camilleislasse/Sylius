@@ -18,12 +18,12 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
 use FriendsOfBehat\PageObjectExtension\Page\UnexpectedPageException;
-use Sylius\Behat\Page\SymfonyPage;
+use Sylius\Behat\Page\SyliusPage;
 use Sylius\Behat\Service\DriverHelper;
 use Sylius\Component\Core\Formatter\StringInflector;
 use Symfony\Component\Routing\RouterInterface;
 
-class UpdatePage extends SymfonyPage implements UpdatePageInterface
+class UpdatePage extends SyliusPage implements UpdatePageInterface
 {
     public function __construct(
         Session $session,
@@ -37,7 +37,7 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
     public function saveChanges(): void
     {
         if (DriverHelper::isJavascript($this->getDriver())) {
-            $this->getDocument()->find('css', 'body')->click();
+            $this->blur();
         }
         $this->getDocument()->find('css', '[data-test-update-changes-button]')->click();
         DriverHelper::waitForPageToLoad($this->getSession());
@@ -45,7 +45,7 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
 
     public function cancelChanges(): void
     {
-        $this->getDocument()->find('css', '[data-test-cancel-changes-button]')->click();
+        $this->getElement('back_button')->click();
     }
 
     public function getValidationMessage(string $element): string
@@ -89,10 +89,10 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
 
     protected function getDefinedElements(): array
     {
-        return array_merge(
-            parent::getDefinedElements(),
-            ['form' => 'form'],
-        );
+        return array_merge(parent::getDefinedElements(), [
+            'back_button' => '[data-test-cancel-changes-button]',
+            'form' => 'form',
+        ]);
     }
 
     protected function waitForFormUpdate(): void

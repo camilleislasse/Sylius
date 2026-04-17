@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
+use Behat\Step\Given;
 use Doctrine\Persistence\ObjectManager;
 use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
@@ -43,13 +44,11 @@ final readonly class PaymentContext implements Context
     ) {
     }
 
-    /**
-     * @Given the store (also )allows paying (with ):paymentMethodName
-     * @Given the store (also )allows paying with :paymentMethodName at position :position
-     */
+    #[Given('the store (also )allows paying (with ):paymentMethodName')]
+    #[Given('the store (also )allows paying (with ):paymentMethodName at position :position')]
     public function storeAllowsPaying(string $paymentMethodName, ?int $position = null): void
     {
-        $this->createPaymentMethod($paymentMethodName, 'PM_' . StringInflector::nameToCode($paymentMethodName), 'Offline', 'Payment method', true, $position);
+        $this->createPaymentMethod($paymentMethodName, StringInflector::nameToCode($paymentMethodName), 'Offline', 'Payment method', true, $position);
     }
 
     /**
@@ -102,9 +101,7 @@ final readonly class PaymentContext implements Context
         $this->paymentMethodManager->flush();
     }
 
-    /**
-     * @Given /^(this payment method) is not using Payum$/
-     */
+    #[Given('/^(this payment method) is not using Payum$/')]
     public function thisPaymentMethodIsNotUsingPayum(PaymentMethodInterface $paymentMethod): void
     {
         /** @var GatewayConfigInterface $gatewayConfig */
@@ -122,6 +119,15 @@ final readonly class PaymentContext implements Context
     public function theStoreHasAPaymentMethodDisabled(PaymentMethodInterface $paymentMethod): void
     {
         $paymentMethod->disable();
+
+        $this->paymentMethodManager->flush();
+    }
+
+    #[Given('the payment method :paymentMethod is enabled')]
+    #[Given('the payment method :paymentMethod gets enabled')]
+    public function theStoreHasAPaymentMethodEnabled(PaymentMethodInterface $paymentMethod): void
+    {
+        $paymentMethod->enable();
 
         $this->paymentMethodManager->flush();
     }
@@ -153,6 +159,16 @@ final readonly class PaymentContext implements Context
         $config = $paymentMethod->getGatewayConfig();
         $config->setConfig(array_merge($config->getConfig(), ['use_authorize' => true]));
         $paymentMethod->setGatewayConfig($config);
+
+        $this->paymentMethodManager->flush();
+    }
+
+    /**
+     * @Given the payment method :paymentMethod has been disabled in :channel channel
+     */
+    public function theStoreHasDisabledPaymentMethodInChannel(PaymentMethodInterface $paymentMethod, ChannelInterface $channel): void
+    {
+        $paymentMethod->removeChannel($channel);
 
         $this->paymentMethodManager->flush();
     }

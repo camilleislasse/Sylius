@@ -17,9 +17,10 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Session;
+use Sylius\Behat\Context\Ui\Admin\Helper\SecurePasswordTrait;
 use Sylius\Behat\Page\Shop\Page as ShopPage;
 use Sylius\Behat\Service\DriverHelper;
-use Sylius\Behat\Service\JQueryHelper;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Factory\AddressFactoryInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -27,6 +28,8 @@ use Webmozart\Assert\Assert;
 
 class AddressPage extends ShopPage implements AddressPageInterface
 {
+    use SecurePasswordTrait;
+
     public const TYPE_BILLING = 'billing';
 
     public const TYPE_SHIPPING = 'shipping';
@@ -36,6 +39,7 @@ class AddressPage extends ShopPage implements AddressPageInterface
         $minkParameters,
         RouterInterface $router,
         protected AddressFactoryInterface $addressFactory,
+        protected SharedStorageInterface $sharedStorage,
     ) {
         parent::__construct($session, $minkParameters, $router);
     }
@@ -173,7 +177,7 @@ class AddressPage extends ShopPage implements AddressPageInterface
     {
         $this->waitForElementUpdate('form');
 
-        $this->getElement('login_password')->setValue($password);
+        $this->getElement('login_password')->setValue($this->retrieveSecurePassword($password));
     }
 
     public function getItemSubtotal(string $itemName): string
@@ -197,6 +201,10 @@ class AddressPage extends ShopPage implements AddressPageInterface
 
     public function nextStep(): void
     {
+        if (DriverHelper::isJavascript($this->getDriver())) {
+            $this->blur();
+            DriverHelper::waitForPageToLoad($this->getSession());
+        }
         $this->getElement('next_step')->press();
         DriverHelper::waitForPageToLoad($this->getSession());
     }
@@ -275,7 +283,7 @@ class AddressPage extends ShopPage implements AddressPageInterface
 
     public function waitForFormToStopLoading(): void
     {
-        JQueryHelper::waitForFormToStopLoading($this->getDocument());
+        DriverHelper::waitForFormToStopLoading($this->getSession());
     }
 
     protected function getDefinedElements(): array

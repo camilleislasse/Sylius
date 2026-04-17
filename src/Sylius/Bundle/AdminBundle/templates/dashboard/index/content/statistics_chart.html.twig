@@ -1,12 +1,10 @@
+{% import '@SyliusAdmin/shared/helper/loader.html.twig' as loader %}
+
 {% set statistics_data = hookable_metadata.context.statistics_data %}
 {% set period = hookable_metadata.context.period %}
 
 <div class="card mb-3">
-    <div data-loading>
-        <div class="sylius-loader">
-            <img src="{{ asset('build/admin/images/loader.svg', 'admin') }}" alt="Loading"/>
-        </div>
-    </div>
+    {{ loader.render() }}
     <div class="card-body">
         <div class="d-flex justify-content-end gap-5 mb-3">
             <div class="btn-group" role="group">
@@ -63,6 +61,14 @@
                 </button>
             </div>
         </div>
-        <div id="statistics-chart" class="chart-lg" data-intervals="{{ statistics_data.sales_summary.intervals|json_encode }}" data-sales="{{ statistics_data.sales_summary.sales|json_encode }}" data-currency="{{ statistics_data.currency_symbol }}"></div>
+
+        <div
+            id="statistics-chart"
+            class="chart-lg"
+            data-intervals="{{ statistics_data.sales_summary.intervals|json_encode }}"
+            data-sales="{{ statistics_data.sales_summary.sales|json_encode }}"
+            data-paid-orders-count="{{ statistics_data.sales_summary.paid_orders_count|json_encode }}"
+            data-currency="{{ statistics_data.currency_symbol }}"
+        ></div>
     </div>
 </div>

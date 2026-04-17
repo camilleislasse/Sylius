@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Api\Shop\Checkout;
 
 use Behat\Behat\Context\Context;
+use Behat\Step\When;
 use Sylius\Behat\Client\ApiClientInterface;
 use Sylius\Behat\Client\RequestFactoryInterface;
 use Sylius\Behat\Context\Api\Resources;
@@ -31,9 +32,16 @@ final readonly class CheckoutCompleteContext implements Context
     ) {
     }
 
+    #[When('I check summary of my order')]
+    public function iCheckSummaryOfMyOrder(): void
+    {
+        $this->client->requestGet(sprintf('orders/%s', $this->sharedStorage->get('cart_token')));
+    }
+
     /**
      * @Given I have confirmed order
      */
+    #[When('I try to complete checkout')]
     public function iConfirmMyOrder(): void
     {
         $request = $this->requestFactory->customItemAction(
@@ -55,7 +63,7 @@ final readonly class CheckoutCompleteContext implements Context
         $lastResponseContent = $this->client->getLastResponse()->getContent();
 
         Assert::string($lastResponseContent);
-        Assert::contains($lastResponseContent, sprintf('This product %s has been disabled.', $productVariant->getName()));
+        Assert::contains($lastResponseContent, sprintf('The product %s is no longer available.', $productVariant->getName()));
     }
 
     /**

@@ -18,6 +18,7 @@ use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Statistics\Provider\StatisticsProviderInterface;
 use Sylius\TwigHooks\LiveComponent\HookableLiveComponentTrait;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Intl\Currencies;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
@@ -40,10 +41,10 @@ class StatisticsComponent
     public string $channelCode;
 
     #[LiveProp]
-    public string $startDate = 'first day of january this year';
+    public string $startDate = 'first day of next month last year';
 
     #[LiveProp]
-    public string $endDate = 'first day of january next year';
+    public string $endDate = 'first day of next month this year';
 
     #[LiveProp]
     public string $period = 'year';
@@ -57,7 +58,15 @@ class StatisticsComponent
     public function __construct(
         protected readonly ChannelRepositoryInterface $channelRepository,
         protected readonly StatisticsProviderInterface $statisticsProvider,
+        protected readonly ?ClockInterface $clock = null,
     ) {
+        if ($this->clock === null) {
+            trigger_deprecation(
+                'sylius/admin-bundle',
+                '2.1.9',
+                'Not passing $clock through constructor is deprecated and will be prohibited in Sylius 3.0.',
+            );
+        }
     }
 
     /**
@@ -73,7 +82,7 @@ class StatisticsComponent
 
         $statistics = $this->statisticsProvider->provide(
             $this->interval,
-            new \DatePeriod(new \DateTime($this->startDate), $this->resolveInterval(), new \DateTime($this->endDate)),
+            new \DatePeriod($this->createDateTime($this->startDate), $this->resolveInterval(), $this->createDateTime($this->endDate)),
             $channel,
         );
 
@@ -86,6 +95,7 @@ class StatisticsComponent
                 },
                 array_column($saleList, 'total'),
             ),
+            'paid_orders_count' => array_column($saleList, 'paidOrdersCount'),
         ];
 
         return [
@@ -120,15 +130,15 @@ class StatisticsComponent
     #[LiveAction]
     public function getPreviousPeriod(): void
     {
-        $this->startDate = (new \DateTime($this->startDate))->sub(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
-        $this->endDate = (new \DateTime($this->endDate))->sub(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
+        $this->startDate = $this->createDateTime($this->startDate)->sub(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
+        $this->endDate = $this->createDateTime($this->endDate)->sub(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
     }
 
     #[LiveAction]
     public function getNextPeriod(): void
     {
-        $this->startDate = (new \DateTime($this->startDate))->add(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
-        $this->endDate = (new \DateTime($this->endDate))->add(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
+        $this->startDate = $this->createDateTime($this->startDate)->add(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
+        $this->endDate = $this->createDateTime($this->endDate)->add(new \DateInterval($this->resolveChangePeriodInterval()))->format('Y-m-d');
     }
 
     private function resolveInterval(): \DateInterval
@@ -146,16 +156,16 @@ class StatisticsComponent
     {
         [$startDate, $endDate] = match ($this->period) {
             'year' => [
-                (new \DateTime('first day of January this year'))->format('Y-m-d'),
-                (new \DateTime('first day of January next year'))->format('Y-m-d'),
+                $this->createDateTime('first day of next month last year')->format('Y-m-d'),
+                $this->createDateTime('first day of next month this year')->format('Y-m-d'),
             ],
             'month' => [
-                (new \DateTime('first day of this month'))->format('Y-m-d'),
-                (new \DateTime('first day of next month'))->format('Y-m-d'),
+                $this->createDateTime('+1 day -1 month')->format('Y-m-d'),
+                $this->createDateTime('+1 day')->format('Y-m-d'),
             ],
             '2 weeks' => [
-                (new \DateTime('monday previous week'))->format('Y-m-d'),
-                (new \DateTime('monday next week'))->format('Y-m-d'),
+                $this->createDateTime('+1 day -2 weeks')->format('Y-m-d'),
+                $this->createDateTime('+1 day')->format('Y-m-d'),
             ],
             default => throw new \InvalidArgumentException(sprintf('Period "%s" is not supported.', $this->period)),
         };
@@ -172,5 +182,14 @@ class StatisticsComponent
             '2 weeks' => 'P2W',
             default => throw new \InvalidArgumentException(sprintf('Period "%s" is not supported.', $this->period)),
         };
+    }
+
+    private function createDateTime(string $datetime): \DateTime
+    {
+        if ($this->clock === null) {
+            return new \DateTime($datetime);
+        }
+
+        return \DateTime::createFromImmutable($this->clock->now()->modify($datetime));
     }
 }

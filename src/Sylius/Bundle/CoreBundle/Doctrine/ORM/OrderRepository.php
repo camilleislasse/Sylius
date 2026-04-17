@@ -94,7 +94,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
-    public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder
+    public function createByCustomerAndChannelIdQueryBuilder(mixed $customerId, mixed $channelId): QueryBuilder
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.customer = :customerId')
@@ -106,7 +106,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
-    public function findOrderById($id): ?OrderInterface
+    public function findOrderById(mixed $id): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.id = :id')
@@ -138,7 +138,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
-    public function findOneForPayment($id): ?OrderInterface
+    public function findOneForPayment(mixed $id): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
             ->addSelect('payments')
@@ -199,7 +199,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
-    public function findCartByChannel($id, ChannelInterface $channel): ?OrderInterface
+    public function findCartByChannel(mixed $id, ChannelInterface $channel): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.id = :id')
@@ -310,6 +310,28 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
+    public function countGroupedPaidForChannelInPeriod(
+        ChannelInterface $channel,
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate,
+        array $groupBy,
+    ): array {
+        $queryBuilder = $this->createPaidOrdersInChannelPlacedWithinDateRangeQueryBuilder($channel, $startDate, $endDate);
+        $queryBuilder->select('COUNT(o) AS paid_orders_count');
+
+        foreach ($groupBy as $name => $select) {
+            $queryBuilder
+                ->addSelect($select)
+                ->addGroupBy($name)
+            ;
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
+
     public function countFulfilledByChannel(ChannelInterface $channel): int
     {
         return (int) $this->createQueryBuilder('o')
@@ -391,7 +413,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findCartForSummary($id): ?OrderInterface
+    public function findCartForSummary(mixed $id): ?OrderInterface
     {
         /** @var OrderInterface $order */
         $order = $this->createQueryBuilder('o')
@@ -422,7 +444,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         return $order;
     }
 
-    public function findCartForAddressing($id): ?OrderInterface
+    public function findCartForAddressing(mixed $id): ?OrderInterface
     {
         /** @var OrderInterface $order */
         $order = $this->createQueryBuilder('o')
@@ -444,7 +466,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         return $order;
     }
 
-    public function findCartForSelectingShipping($id): ?OrderInterface
+    public function findCartForSelectingShipping(mixed $id): ?OrderInterface
     {
         /** @var OrderInterface $order */
         $order = $this->createQueryBuilder('o')
@@ -466,7 +488,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         return $order;
     }
 
-    public function findCartForSelectingPayment($id): ?OrderInterface
+    public function findCartForSelectingPayment(mixed $id): ?OrderInterface
     {
         /** @var OrderInterface $order */
         $order = $this->createQueryBuilder('o')
@@ -541,5 +563,18 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
             ->setParameter('channel', $channel)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
+    }
+
+    public function countNewByChannel(ChannelInterface $channel): int
+    {
+        return $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.channel = :channel')
+            ->setParameter('state', OrderInterface::STATE_NEW)
+            ->setParameter('channel', $channel)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
     }
 }

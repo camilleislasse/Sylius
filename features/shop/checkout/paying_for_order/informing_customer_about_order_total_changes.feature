@@ -16,7 +16,7 @@ Feature: Informing customer about any order total changes during checkout proces
     Scenario: Informing customer about order total change due to product price change
         Given I am a logged in customer
         And I added product "PHP T-Shirt" to the cart
-        And I proceeded through checkout process
+        And I proceeded through the checkout process
         And this product price has been changed to "$25.00"
         And I confirm my order
         Then my order should not be placed due to changed order total
@@ -25,7 +25,7 @@ Feature: Informing customer about any order total changes during checkout proces
     Scenario: Being able to confirm order after information appears
         Given I am a logged in customer
         And I added product "PHP T-Shirt" to the cart
-        And I proceeded through checkout process
+        And I proceeded through the checkout process
         And this product price has been changed to "$25.00"
         When I confirm my order
         Then my order should not be placed due to changed order total
@@ -34,16 +34,16 @@ Feature: Informing customer about any order total changes during checkout proces
     Scenario: Informing customer about order total change due to tax change
         Given I am a logged in customer
         And I added product "PHP T-Shirt" to the cart
-        And I proceeded through checkout process
+        And I proceeded through the checkout process
         And the "NA VAT" tax rate has changed to 10%
         When I confirm my order
         Then my order should not be placed due to changed order total
 
-    @api @ui @mink:chromedriver
+    @api @ui
     Scenario: Informing customer about order total change due to shipping method fee change
         Given the store has "UPS" shipping method with "$20.00" fee
-        When I add product "PHP T-Shirt" to the cart
-        And I complete addressing step with email "guest@example.com" and "United States" based billing address
+        And I added product "PHP T-Shirt" to the cart
+        When I complete addressing step with email "guest@example.com" and "United States" based billing address
         And I proceed with "UPS" shipping method and "Offline" payment
         And the shipping fee for "UPS" shipping method has been changed to "$30.00"
         And I confirm my order

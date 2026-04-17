@@ -12,13 +12,12 @@ Feature: Preventing skipping checkout steps
         And the promotion gives "$29.99" discount to every order with quantity at least 2
         And the store ships everywhere for Free
         And the store allows paying Offline
-        And I am a logged in customer
 
     @no-api @ui
     Scenario: Skipping shipping checkout step
         Given I added product "PHP T-Shirt" to the cart
         And I addressed the cart
-        When I want to complete checkout
+        When I try to open checkout complete page
         Then I should be on the checkout shipping step
 
     @no-api @ui
@@ -28,30 +27,30 @@ Feature: Preventing skipping checkout steps
         When I want to complete the shipping step
         And I have selected "Free" shipping method
         And I complete the shipping step
-        And I want to complete checkout
+        And I try to open checkout complete page
         Then I should be on the checkout payment step
 
     @no-api @ui
     Scenario: Skipping addressing checkout step
         Given I added product "PHP T-Shirt" to the cart
         And I am at the checkout addressing step
-        When I want to complete checkout
+        When I try to open checkout complete page
         Then I should be on the checkout addressing step
 
     @no-api @ui
     Scenario: Skipping addressing checkout step when order total is zero
-        When I add product "PHP T-Shirt" to the cart
+        Given I added product "PHP T-Shirt" to the cart
         And I have product "Paganini T-Shirt" in the cart
         And I am at the checkout addressing step
-        When I want to complete checkout
+        When I try to open checkout complete page
         Then I should be on the checkout addressing step
 
     @no-api @ui
     Scenario: Not being able to skip the checkout shipping selection step when order total is zero
-        When I add product "PHP T-Shirt" to the cart
+        Given I added product "PHP T-Shirt" to the cart
         And I have product "Paganini T-Shirt" in the cart
-        And I specified the billing address as "Ankh Morpork", "Frost Alley", "90210", "United States" for "Jon Snow"
-        When I want to complete checkout
+        And I addressed the cart
+        When I try to open checkout complete page
         Then I should be on the checkout shipping step
 
     @no-api @ui
@@ -59,7 +58,7 @@ Feature: Preventing skipping checkout steps
         Given I added product "PHP T-Shirt" to the cart
         And I added product "Paganini T-Shirt" to the cart
         And I addressed the cart
-        When I want to complete checkout
+        When I try to open checkout complete page
         And I have selected "Free" shipping method
         And I complete the shipping step
         And I want to pay for order

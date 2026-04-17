@@ -13,15 +13,18 @@ declare(strict_types=1);
 
 namespace Sylius\Tests\Api\Shop;
 
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Bundle\ApiBundle\Command\Cart\AddItemToCart;
 use Sylius\Bundle\ApiBundle\Command\Cart\PickupCart;
 use Sylius\Bundle\ApiBundle\Command\Checkout\UpdateCart;
 use Sylius\Component\Core\Model\Address;
 use Sylius\Component\Core\Model\ShipmentInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Component\Core\Repository\ShipmentRepositoryInterface;
 use Sylius\Tests\Api\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 final class ShippingMethodsTest extends JsonApiTestCase
 {
@@ -32,7 +35,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         parent::setUp();
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_all_available_shipping_methods_by_default_in_given_channel(): void
     {
         $this->loadFixturesFromFiles(['channel/channel.yaml', 'cart.yaml', 'country.yaml', 'shipping_method.yaml']);
@@ -42,7 +45,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_a_shipping_method(): void
     {
         $this->loadFixturesFromFiles(['channel/channel.yaml', 'cart.yaml', 'country.yaml', 'shipping_method.yaml']);
@@ -52,7 +55,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_shipping_method_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_get_a_shipping_method_not_available_in_given_channel(): void
     {
         $this->loadFixturesFromFiles(['channel/channel.yaml', 'cart.yaml', 'country.yaml', 'shipping_method.yaml']);
@@ -62,7 +65,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NOT_FOUND);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_shipping_methods_available_for_given_shipment_and_order(): void
     {
         $this->loadFixturesFromFiles(['channel/channel.yaml', 'cart.yaml', 'country.yaml', 'shipping_method.yaml']);
@@ -82,7 +85,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_order_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_available_shipping_methods_of_assigned_cart_for_visitor(): void
     {
         $this->loadFixturesFromFiles([
@@ -106,7 +109,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_order_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_available_shipping_methods_of_assigned_cart_for_other_users_if_shipment_id_and_cart_provided(): void
     {
         $this->loadFixturesFromFiles([
@@ -134,7 +137,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_order_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_empty_list_of_available_shipping_methods_for_not_existent_shipment(): void
     {
         $this->loadFixturesFromFiles([
@@ -150,7 +153,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponse($this->client->getResponse(), 'shop/shipping_method/get_empty_order_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_empty_list_of_available_shipping_methods_for_not_existent_order(): void
     {
         $this->loadFixturesFromFiles([
@@ -184,7 +187,24 @@ final class ShippingMethodsTest extends JsonApiTestCase
             productVariantCode: 'MUG_BLUE',
             quantity: 3,
         );
-        $commandBus->dispatch($addItemToCartCommand);
+
+        $tokenStorage = self::getContainer()->get('security.token_storage');
+        $previousToken = $tokenStorage->getToken();
+
+        $shopUserRepository = self::getContainer()->get('sylius.repository.shop_user');
+        /** @var ShopUserInterface|null $user */
+        $user = $shopUserRepository->findOneByEmail($customerEmail);
+        if (null !== $user) {
+            $tokenStorage->setToken(
+                new UsernamePasswordToken($user, 'api_shop', $user->getRoles()),
+            );
+        }
+
+        try {
+            $commandBus->dispatch($addItemToCartCommand);
+        } finally {
+            $tokenStorage->setToken($previousToken);
+        }
 
         $address = new Address();
         $address->setFirstName('John');

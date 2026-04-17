@@ -9,8 +9,6 @@
 
 import './styles/main.scss';
 
-import './app';
-
 import './scripts/bulk-delete';
 import './scripts/check-all';
 import './scripts/fullscreen';
@@ -19,10 +17,8 @@ import './scripts/spotlight';
 import './scripts/statistics_chart';
 import './scripts/sticky-header';
 
+import './scripts/autocomplete-xss-protection';
 import './scripts/bootstrap';
 
-import './images/404.svg';
-import './images/loader.svg';
-import './images/no_data.svg';
-import './images/sylius-logo.svg';
-import './images/sylius-logo-dark-text.png';
+const imagesContext = require.context('./images', true, /\.(jpg|jpeg|png|svg|gif|webp)$/);
+imagesContext.keys().forEach(imagesContext);

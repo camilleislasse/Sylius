@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Element\Product\ShowPage;
 
-use FriendsOfBehat\PageObjectExtension\Element\Element;
+use Sylius\Behat\Element\SyliusElement;
 
-class MediaElement extends Element implements MediaElementInterface
+class MediaElement extends SyliusElement implements MediaElementInterface
 {
     public function isImageDisplayed(): bool
     {
@@ -24,9 +24,11 @@ class MediaElement extends Element implements MediaElementInterface
             return false;
         }
         $imageUrl = $imageElement->getAttribute('src');
+        $originalUrl = $this->getDriver()->getCurrentUrl();
+
         $this->getDriver()->visit($imageUrl);
         $pageText = $this->getDocument()->getText();
-        $this->getDriver()->back();
+        $this->getDriver()->visit($originalUrl);
 
         return false === stripos($pageText, '404 Not Found');
     }

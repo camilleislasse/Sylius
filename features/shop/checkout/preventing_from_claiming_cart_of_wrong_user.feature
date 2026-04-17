@@ -14,7 +14,7 @@ Feature: Preventing from claiming cart of a wrong user
         And the store allows paying Offline
         And there is a user "robb@stark.com" identified by "KingInTheNorth"
 
-    @no-api @ui @javascript
+    @no-api @ui @mink:chromedriver
     Scenario: Preventing anonymous user from claiming cart of logged in user
         Given I am logged in as "robb@stark.com"
         And I have product "PHP T-Shirt" in the cart
@@ -23,7 +23,7 @@ Feature: Preventing from claiming cart of a wrong user
         And they add product "Symfony T-Shirt" to the cart
         Then their cart total should be "$150.00"
 
-    @no-api @ui @javascript
+    @no-api @ui @mink:chromedriver
     Scenario: Preventing anonymous user from claiming cart of logged in user
         Given I am logged in as "robb@stark.com"
         And I have product "PHP T-Shirt" in the cart
@@ -36,8 +36,8 @@ Feature: Preventing from claiming cart of a wrong user
 
     @no-api @ui @mink:chromedriver
     Scenario: Preventing anonymous user from claiming cart of logged in user
-        Given I add the product "PHP T-Shirt" to the cart
-        When I sign in with email "robb@stark.com" and password "KingInTheNorth"
+        When I add product "PHP T-Shirt" to the cart
+        And I sign in with email "robb@stark.com" and password "KingInTheNorth"
         And I log out
         And an anonymous user in another browser adds products "PHP T-Shirt" and "Kotlin T-Shirt" to the cart
         And they complete addressing step with email "robb@stark.com" and "United States" based billing address

@@ -6,6 +6,7 @@ default:
         api_paying_for_order:
             contexts:
                 - sylius.behat.context.hook.doctrine_orm
+                - sylius.behat.context.hook.guest_cart
 
                 - sylius.behat.context.transform.address
                 - sylius.behat.context.transform.cart
@@ -44,10 +45,12 @@ default:
                 - sylius.behat.context.setup.zone
 
                 - sylius.behat.context.api.admin.managing_payment_requests
+                - sylius.behat.context.api.debug
                 - sylius.behat.context.api.shop.cart
                 - sylius.behat.context.api.shop.checkout
                 - sylius.behat.context.api.shop.checkout.complete
                 - sylius.behat.context.api.shop.checkout.order_details
+                - sylius.behat.context.api.shop.checkout.shipping
                 - sylius.behat.context.api.shop.customer
                 - sylius.behat.context.api.shop.order
                 - sylius.behat.context.api.shop.payment_request

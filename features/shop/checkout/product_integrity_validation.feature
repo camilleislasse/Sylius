@@ -14,20 +14,29 @@ Feature: Order products integrity
         And the store allows paying Offline
         And I am a logged in customer
 
-    @api @ui @javascript
+    @api @ui
     Scenario: Preventing customer from completing checkout with no longer available products
-        When I add product "PHP T-Shirt" to the cart
-        And I have proceeded through checkout process
+        Given I added product "PHP T-Shirt" to the cart
+        When I have proceeded through checkout process
         But the product "PHP T-Shirt" has been disabled
         When I try to confirm my order
         Then I should be informed that this product has been disabled
         And I should not see the thank you page
 
-    @api @ui @javascript
+    @api @ui
     Scenario: Preventing customer from completing checkout with no longer available product variant
         Given I have "Small" variant of product "Super Cool T-Shirt" in the cart
         And I have proceeded selecting "Offline" payment method
         But this variant has been disabled
         When I confirm my order
         Then I should be informed that this variant has been disabled
+        And I should not see the thank you page
+
+    @ui @api
+    Scenario: Preventing a customer from completing checkout when a product is no longer available in the current channel
+        Given I added product "PHP T-Shirt" to the cart
+        And I have proceeded through checkout process
+        But this product is not available in "United States" channel
+        When I try to confirm my order
+        Then I should be informed that this product has been disabled
         And I should not see the thank you page

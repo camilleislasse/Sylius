@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Tests\Api\Admin;
 
+use PHPUnit\Framework\Attributes\Test;
 use Sylius\Component\Core\Model\ShippingMethodInterface;
 use Sylius\Tests\Api\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         parent::setUp();
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_shipping_methods(): void
     {
         $this->loadFixturesFromFiles([
@@ -44,7 +45,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/shipping_method/get_shipping_methods_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_a_shipping_method(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -62,7 +63,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/shipping_method/get_shipping_method_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_a_shipping_method(): void
     {
         $this->loadFixturesFromFiles([
@@ -142,7 +143,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_create_a_shipping_method_with_wrong_calculator_configuration(): void
     {
         $this->loadFixturesFromFiles([
@@ -180,7 +181,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'configuration[WEB][amount]',
@@ -194,7 +194,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_create_a_shipping_method_with_wrong_rule_configuration(): void
     {
         $this->loadFixturesFromFiles([
@@ -268,7 +268,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'rules[0].configuration[weight]',
@@ -279,26 +278,26 @@ final class ShippingMethodsTest extends JsonApiTestCase
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
-                    'propertyPath' => 'rules[2].configuration[MOBILE][amount]',
-                    'message' => 'This value should be of type numeric.',
-                ],
-                [
                     'propertyPath' => 'rules[2].configuration[WEB][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
-                    'propertyPath' => 'rules[3].configuration[MOBILE][amount]',
+                    'propertyPath' => 'rules[2].configuration[MOBILE][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
                     'propertyPath' => 'rules[3].configuration[WEB][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
+                [
+                    'propertyPath' => 'rules[3].configuration[MOBILE][amount]',
+                    'message' => 'This value should be of type numeric.',
+                ],
             ],
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_a_shipping_method_rules(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -359,7 +358,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_shipping_method_calculator_configuration(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -393,7 +392,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_shipping_method_calculator_configuration_with_wrong_configuration(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -422,7 +421,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'configuration[WEB][amount]',
@@ -444,7 +442,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_a_shipping_method_with_duplicate_locale_translation(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -469,7 +467,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'translations[en_US].locale',
@@ -479,7 +476,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_shipping_methods_rules_with_wrong_configuration(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -535,7 +532,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'rules[0].configuration[weight]',
@@ -546,26 +542,26 @@ final class ShippingMethodsTest extends JsonApiTestCase
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
-                    'propertyPath' => 'rules[2].configuration[MOBILE][amount]',
-                    'message' => 'This value should be of type numeric.',
-                ],
-                [
                     'propertyPath' => 'rules[2].configuration[WEB][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
-                    'propertyPath' => 'rules[3].configuration[MOBILE][amount]',
+                    'propertyPath' => 'rules[2].configuration[MOBILE][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
                 [
                     'propertyPath' => 'rules[3].configuration[WEB][amount]',
                     'message' => 'This value should be of type numeric.',
                 ],
+                [
+                    'propertyPath' => 'rules[3].configuration[MOBILE][amount]',
+                    'message' => 'This value should be of type numeric.',
+                ],
             ],
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_update_shipping_methods_rules_with_wrong_types(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
@@ -593,7 +589,6 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
 
         $this->assertResponseViolations(
-            $this->client->getResponse(),
             [
                 [
                     'propertyPath' => 'rules[0].type',
@@ -603,7 +598,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_archives_a_shipping_method(): void
     {
         $this->setUpDefaultPatchHeaders();
@@ -623,7 +618,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/shipping_method/archive_shipping_method_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_restores_a_shipping_method(): void
     {
         $this->setUpDefaultPatchHeaders();
@@ -644,7 +639,7 @@ final class ShippingMethodsTest extends JsonApiTestCase
         $this->assertResponseSuccessful('admin/shipping_method/restore_shipping_method_response');
     }
 
-    /** @test */
+    #[Test]
     public function it_deletes_a_shipping_method(): void
     {
         $fixtures = $this->loadFixturesFromFiles([
